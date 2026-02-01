@@ -92,6 +92,12 @@ public class MAuthService
                     headers1.add("x-correlationId", correlationId);
                     headers1.add("x-country", "INDIA");
 
+                    String clientId = ConfigReader.getAuthCredentials("clientId");
+                    String clientSecret = ConfigReader.getAuthCredentials("clientSecret");
+                    String authString = clientId + ":" + clientSecret;
+                    String encodedAuthString = Base64.getEncoder().encodeToString(authString.getBytes());
+                    headers1.add("Authorization", "Basic "+encodedAuthString);
+
                     Map<String, Object> payload = new HashMap<>();
 
                     Map<String, String> callbacksInput1 = new HashMap<>();
