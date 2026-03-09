@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -38,7 +39,7 @@ public class MAuthService
         if(authEntity.isPresent())
         {
             mAuthEntity entity = authEntity.get();
-            if(entity.getmPIN().equals(mPIN))
+            if(BCrypt.checkpw(mPIN, entity.getmPIN()))
             {
                 RestTemplate restTemplate = new RestTemplate();
                 String dpCloud_url = ConfigReader.getHost("SelfBuild_host", "DomainHosts") +
@@ -202,7 +203,8 @@ public class MAuthService
                 mAuthEntity entity = new mAuthEntity();
                 entity.setCustomerId(customerId);
                 entity.setDeviceId(deviceId);
-                entity.setmPIN(mPIN);
+                String encrypted_MPIN = BCrypt.hashpw(mPIN, BCrypt.gensalt(12));
+                entity.setmPIN(encrypted_MPIN);
                 entity.setIs_profile_provisioned(true);
                 entity.setProfile_provisioned_timeStamp(new Date().toString());
                 entity.setmPIN_issued_timeStamp(new Date().toString());
